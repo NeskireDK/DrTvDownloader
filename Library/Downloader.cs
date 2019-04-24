@@ -61,17 +61,22 @@ namespace DrTvDownloader.Library
 
         private void VerifyYoutubeDl()
         {
-            if (!File.Exists("youtube-dl.exe"))
+            if (IsFileStatusOk())
             {
-                _logger.Log("Could not fild Youtube-dl, trying to download");
+                _logger.Log("Youtube-dl was missing or out of date, trying to download");
 
                 using (var client = new WebClient())
                 {
-                    client.DownloadFile("https://yt-dl.org/downloads/2017.07.15/youtube-dl.exe", "youtube-dl.exe");
+                    client.DownloadFile("https://yt-dl.org/downloads/latest/youtube-dl.exe", "youtube-dl.exe");
                 }
 
                 _logger.Log("Finished downloading youtube-dl");
             }
+        }
+
+        private bool IsFileStatusOk()
+        {
+            return !File.Exists("youtube-dl.exe") && File.GetCreationTime("youtube-dl.exe") <= DateTime.Now.AddDays(-30);
         }
 
         private void SearchAndDownload(string keyword)

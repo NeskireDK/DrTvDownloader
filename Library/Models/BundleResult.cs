@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 
 public class BundleResult
 {
@@ -89,4 +88,3 @@ public class Relation
     public string Slug { get; set; }
     public string BundleType { get; set; }
 }
-

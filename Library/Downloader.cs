@@ -7,9 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using DrTvDownloader.Library.Helpers;
 using Newtonsoft.Json;
 
@@ -88,23 +86,25 @@ namespace DrTvDownloader.Library
             var seachUrl = $@"http://www.dr.dk/mu/search/bundle?Title=%24like(%27{keyword}%27)";
             var searchResult = Get<BundleResult>(seachUrl);
 
-            var slugs = searchResult.Data.SelectMany(s => s.Relations.Select(r => new { r.Slug, s.Title })).Distinct().ToList();
+            var slugs = searchResult.Data.SelectMany(s => s.Relations.Select(r => new {r.Slug, s.Title})).Distinct().ToList();
 
             foreach (var slug in slugs)
             {
                 var episodeDir = videoDir + "/" + slug.Title;
-                var tags = Directory.Exists(episodeDir) ? Directory.GetFiles(episodeDir)
-                    .Select(s =>
-                    {
-                        try
+                var tags = Directory.Exists(episodeDir)
+                    ? Directory.GetFiles(episodeDir)
+                        .Select(s =>
                         {
-                            return TagLib.File.Create(s).Tag.Comment;
-                        }
-                        catch (Exception e)
-                        {
-                            return "";
-                        }
-                    }) : new List<string>();
+                            try
+                            {
+                                return TagLib.File.Create(s).Tag.Comment;
+                            }
+                            catch (Exception e)
+                            {
+                                return "";
+                            }
+                        })
+                    : new List<string>();
 
                 var exists = Directory.Exists(episodeDir) &&
                              tags.Any(a => a == slug.Slug);
@@ -145,7 +145,7 @@ namespace DrTvDownloader.Library
                 }
                 else
                 {
-                    var titleSplit = title.Split(new[] { '(', ':', ')' });
+                    var titleSplit = title.Split(new[] {'(', ':', ')'});
 
                     // format: "name (8:10)"
                     if (titleSplit.Length == 4)
@@ -230,8 +230,8 @@ namespace DrTvDownloader.Library
                         if (line.Contains(".mp4") && line.StartsWith("[download]"))
                         {
                             filename = line.Replace("[download] Destination: ", "")
-                                           .Replace("[download] ", "")
-                                           .Replace(" has already been downloaded", "");
+                                .Replace("[download] ", "")
+                                .Replace(" has already been downloaded", "");
                         }
                     }
 
@@ -265,7 +265,7 @@ namespace DrTvDownloader.Library
                     File.Move(forFile.FullName, dir + "/" + newFilename + forFile.Extension);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.Log($"Could not download: {url}");
             }
